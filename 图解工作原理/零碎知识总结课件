@@ -1,0 +1,61 @@
+Controller Manager   决策,控制副本集
+Scheduler        调度
+etcd             存储中心  持久化存储
+api              协调中心
+control Plane    负责管理整个集群的状态，调度任务，监控集群正常运行
+kubelet          控制节点、操作节点、容器引擎交互实现生命周期管理
+kube-proxy       代理
+apiserver        服务统一入口api
+cordons          可以在集群中svc 创建一个域名ip的对饮关系解析
+dashboard        给K8s集群提供一个B/s结构访问体系 
+ingress controller 官方只能实现四层代理。 Ingress 可以实现七层代理
+Fedetation       跨集群中心多K8s 统一管理
+Prometheus       监控k8s集群监控
+
+
+
+
+pod 概念：
+  在 Kubernetes (K8S) 中，pause 容器是一个特殊的、由系统提供的最小容器，它被用作 Pod 网络命名空间中的一个占位符。每个 Pod 都有一个 pause 容器，即使用户没有显式地定义它。pause 容器的主要作用是确保 Pod 中的所有其他容器可以共享网络栈
+--网络命名空间管理：
+
+  每个 Pod 通常都有一个独立的网络命名空间，这意味着 Pod 内的所有容器共享同一个 IP 地址和端口空间。
+  pause 容器作为这个网络命名空间的载体，其他容器通过加入 pause 容器的网络命名空间来实现网络共享。
+
+--网络策略实施：
+
+  Kubernetes 的网络策略（NetworkPolicy）通常是基于 Pod 的，而不是单个容器级别的。
+  pause 容器的存在使得网络策略能够应用于整个 Pod 而不是单独的容器。
+
+--初始化和生命周期管理：
+
+  pause 容器保证了 Pod 中至少有一个容器始终运行着。
+  如果 Pod 中的所有用户定义的容器都终止了，Kubernetes 会重启 pause 容器以确保 Pod 的网络命名空间仍然可用。
+  这样可以避免因为所有容器都退出而导致的 Pod 被销毁的情况。
+
+--简化配置：
+
+  用户不需要为 Pod 中的每个容器配置网络设置，因为这些设置已经通过 pause 容器自动处理好了。
+
+--资源隔离：
+
+  即便 Pod 中的容器共享相同的网络资源，它们仍然可以在 cgroup 层面上进行资源隔离。
+
+--故障域：
+
+  如果 pause 容器失败或被删除，整个 Pod 将被视为失败，从而触发重新调度或其他故障恢复机制。
+  综上所述，需要注意的是，pause 容器本身并不执行任何业务逻辑，它仅仅作为一个基础设施组件存在。用户通常不会直接与 pause 容器交互，而是通过 Kubernetes API 或者 kubectl 命令间接操作 Pod 和其内部的容器。
+
+
+Replicaset Controller 用来确保容器应用的副本数始终保持在用户定义的副本数，即如果有容器异常退出，会自动创建新的pod来替代，异常高于设定值，则会自动回收
+
+Replicaset 支持集合式的 selector
+
+服务分类：
+  有状态服务
+    StatefulSet 解决有状态服务
+        稳定的持久化存储，基于PVC实现
+        稳定网络标识，
+无状态服务
+
+
